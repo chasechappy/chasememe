@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Chasememe">
+    <link rel="icon" href="favicon.png">
+
+    <title>Chasememe</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css?family=Bangers" rel="stylesheet">
+</head>
+
+<body>
+
+
+    <nav class="navbar navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">Chasememe</a>
+
+        <div class="menu">
+            <a class="nav-link" href="index.html?m=0">Meme 0</a>
+            <a class="nav-link" href="index.html?m=1">Meme 1</a>
+        </div>
+    </nav>
+
+    <div class="jumbotron" style="padding:0">
+        <div class="container">
+            <canvas id="editor" width="1200" height="630"></canvas>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4" id="text0">
+                <h4>Quote 1</h4>
+                <textarea id="m0"></textarea>
+            </div>
+            <div class="col-md-4" id="text1" style="display:none;">
+                <h4>Quote 2</h4>
+                <textarea id="m1">My thought process is...</textarea>
+            </div>
+            <div class="col-md-4" id="text2" style="display:none;">
+                <h4>Quote 3</h4>
+                <textarea id="m2">Hmmmmm...</textarea>
+            </div>
+        </div>
+
+        <hr>
+        <div class="row" style="margin-bottom:50px;">
+            <div class="col-md-12" style="text-align: center;">
+                <button class="btn btn-huge btn-primary" id="download">Download</button>
+            </div>
+        </div>
+
+    </div> <!-- /container -->
+    <style>
+        h4 {
+            font-family: Bangers;
+            font-size: 30px;
+            color: #000;
+        }
+
+        .menu {
+            float: right;
+        }
+
+        a.nav-link {
+            display:inline-block;
+            margin-right: 20px;
+            color: #ffffff;
+        }
+
+        textarea {
+            width: 100%;
+            height: 90px;
+        }
+
+        .btn-huge {
+            font-size: 3em;
+            margin-left: 20px;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" crossorigin="anonymous"></script>
+    <script>
+        let canvas = null;
+        let context = null;
+        let urlParams = new URLSearchParams(window.location.search);
+
+        let memeInfo = [
+            {
+                quotes: 2,
+                coords: [{
+                        x: 400,
+                        y: 200,
+                        fontSize: 48,
+                        lineHeight: 50,
+                        color: '#000000'
+                    },
+                    {
+                        x: 720,
+                        y: 380,
+                        fontSize: 20,
+                        lineHeight: 22,
+                        color: '#ffffff'
+                }]
+            },
+            {
+                quotes: 1,
+                coords: [{
+                    x: 370,
+                    y: 200,
+                    fontSize: 48,
+                    lineHeight: 50,
+                    color: '#000000'
+            }],
+            }
+        ]
+        let memeId = parseInt(urlParams.has('m') ? urlParams.get('m') : '0');
+        if (memeId > memeInfo.length - 1) {
+            memeId = 0;
+        }
+        let meme = memeInfo[memeId];
+        $('#m0').val('Interesting!!! Huh...\nso interesting...');
+        $('#m1').val('My thought\nprocess is\nthat...');
+
+
+        function showText(x, y, text, lineHeight, color) {
+            let lines = text.split('\n');
+            for (var i = 0; i < lines.length; i++) {
+                context.fillStyle = color;
+                context.fillText(lines[i], x, y + (i * lineHeight));
+            }
+        }
+
+        function redraw() {
+            canvas = document.getElementById("editor");
+            context = canvas.getContext('2d');
+            base_image = new Image();
+            base_image.src = `meme${memeId}.jpg`;
+            base_image.onload = function () {
+                context.drawImage(base_image, 0, 0);
+                context.textAlign = 'center';
+                for (let m = 0; m < meme.quotes; m++) {
+                    $('#text' + m).show();
+                    context.font = `${meme.coords[m].fontSize}px Bangers`;
+                    showText(meme.coords[m].x, meme.coords[m].y, $('#m' + m).val(), meme.coords[m].lineHeight, meme.coords[m].color);
+                }
+            }
+        }
+
+        $(document).ready(function () {
+
+            $('#download').on('click', function () {
+                window.open(canvas.toDataURL("image/png"));
+            });
+
+            $('textarea').on('keyup', function () {
+                redraw();
+            });
+            setTimeout(function () {
+                redraw();
+            }, 500);
+        });
+    </script>
+
+</body>
+
+</html>
